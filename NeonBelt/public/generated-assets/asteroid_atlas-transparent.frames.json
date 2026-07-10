@@ -1,0 +1,68 @@
+{
+  "image": "/generated-assets/asteroid_atlas-transparent.webp",
+  "grid": {
+    "cols": 3,
+    "rows": 1,
+    "frameWidth": 384,
+    "frameHeight": 384
+  },
+  "frames": [
+    {
+      "name": "blue_rock",
+      "source": {
+        "x": 56,
+        "y": 56,
+        "w": 384,
+        "h": 384
+      },
+      "content": {
+        "x": 72,
+        "y": 59,
+        "w": 366,
+        "h": 368
+      },
+      "anchor": {
+        "x": 255,
+        "y": 426
+      }
+    },
+    {
+      "name": "bronze_rock",
+      "source": {
+        "x": 504,
+        "y": 56,
+        "w": 384,
+        "h": 384
+      },
+      "content": {
+        "x": 509,
+        "y": 60,
+        "w": 375,
+        "h": 368
+      },
+      "anchor": {
+        "x": 697,
+        "y": 427
+      }
+    },
+    {
+      "name": "shard_rock",
+      "source": {
+        "x": 952,
+        "y": 56,
+        "w": 384,
+        "h": 384
+      },
+      "content": {
+        "x": 955,
+        "y": 59,
+        "w": 367,
+        "h": 369
+      },
+      "anchor": {
+        "x": 1139,
+        "y": 427
+      }
+    }
+  ]
+}

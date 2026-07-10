@@ -1,0 +1,63 @@
+Your current error says:
+
+  Missing script: "android:sync"
+
+That means your GitHub workflow is running:
+
+  npm run android:sync
+
+but your package.json does not have an android:sync script.
+
+FAST FIX:
+
+1. Open this file in GitHub:
+
+   package.json
+
+2. Find the "scripts" section.
+
+3. Replace the whole scripts section with this:
+
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
+    "lint": "eslint src",
+    "build": "eslint src && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "android:sync": "npm run build && (npx cap add android || true) && npx cap sync android",
+    "android:apk:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "android:aab:release": "npm run android:sync && cd android && ./gradlew bundleRelease"
+  }
+
+4. Commit package.json.
+5. Run GitHub Actions again.
+
+If you want the shortest possible package.json, use this full file:
+
+{
+  "name": "neon-belt-drifter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
+    "lint": "eslint src",
+    "build": "eslint src && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "android:sync": "npm run build && (npx cap add android || true) && npx cap sync android",
+    "android:apk:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "android:aab:release": "npm run android:sync && cd android && ./gradlew bundleRelease"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "globals": "^17.6.0",
+    "vite": "^8.0.12"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.6.7",
+    "@capacitor/cli": "^7.6.7",
+    "@capacitor/core": "^7.6.7",
+    "@playabl/sdk": "0.2.0",
+    "three": "^0.184.0"
+  }
+}

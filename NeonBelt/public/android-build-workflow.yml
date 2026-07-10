@@ -1,0 +1,98 @@
+name: Android APK/AAB Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build-android:
+    name: Build Android artifacts
+    runs-on: ubuntu-latest
+    env:
+      HAS_ANDROID_SIGNING: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Repair missing root files
+        run: |
+          if [ ! -f package.json ]; then
+            cat > package.json <<'EOF'
+          {
+            "name": "neon-belt-drifter",
+            "version": "1.0.0",
+            "private": true,
+            "type": "module",
+            "scripts": { "build": "eslint src && vite build" },
+            "devDependencies": { "@eslint/js": "^9.39.0", "eslint": "^9.39.0", "globals": "^17.6.0", "vite": "^8.0.12" },
+            "dependencies": { "@capacitor/android": "^7.6.7", "@capacitor/cli": "^7.6.7", "@capacitor/core": "^7.6.7", "@playabl/sdk": "0.2.0", "three": "^0.184.0" }
+          }
+          EOF
+          fi
+          if [ ! -f capacitor.config.json ]; then
+            cat > capacitor.config.json <<'EOF'
+          { "appId": "com.neonbeltdrifter.app", "appName": "Neon Belt Drifter", "webDir": "dist", "bundledWebRuntime": false, "android": { "allowMixedContent": false, "captureInput": true, "webContentsDebuggingEnabled": false }, "server": { "androidScheme": "https" } }
+          EOF
+          fi
+
+      - name: Install dependencies
+        run: npm install --include=dev --no-audit --no-fund
+
+      - name: Build web app and sync Android
+        run: |
+          npm run build
+          if [ ! -d android ]; then npx cap add android; fi
+          npx cap sync android
+
+      - name: Build debug APK
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Build unsigned release AAB
+        run: cd android && ./gradlew bundleRelease
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Neon-Belt-Drifter-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+
+      - name: Upload unsigned release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: Neon-Belt-Drifter-release-aab-unsigned
+          path: android/app/build/outputs/bundle/release/*.aab
+
+      - name: Decode signing keystore
+        if: env.HAS_ANDROID_SIGNING == 'true'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/neon-belt-drifter-upload.jks
+
+      - name: Sign release AAB
+        if: env.HAS_ANDROID_SIGNING == 'true'
+        run: |
+          jarsigner \
+            -keystore android/app/neon-belt-drifter-upload.jks \
+            -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -keypass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            android/app/build/outputs/bundle/release/app-release.aab \
+            "${{ secrets.ANDROID_KEY_ALIAS }}"
+
+      - name: Upload signed release AAB
+        if: env.HAS_ANDROID_SIGNING == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Neon-Belt-Drifter-release-aab-signed
+          path: android/app/build/outputs/bundle/release/*.aab

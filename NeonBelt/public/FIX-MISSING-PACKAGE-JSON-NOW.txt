@@ -1,0 +1,45 @@
+Your GitHub error means this file is missing from the root of your repo:
+
+  package.json
+
+Fastest fix:
+1. Open your GitHub repo.
+2. Click Add file > Create new file.
+3. Name it exactly:
+   package.json
+4. Paste this:
+
+{
+  "name": "neon-belt-drifter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "eslint src && vite build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "globals": "^17.6.0",
+    "vite": "^8.0.12"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.6.7",
+    "@capacitor/cli": "^7.6.7",
+    "@capacitor/core": "^7.6.7",
+    "@playabl/sdk": "0.2.0",
+    "three": "^0.184.0"
+  }
+}
+
+5. Commit it.
+6. Run GitHub Actions again.
+
+Also check the root of the repo has these files/folders:
+  index.html
+  src/
+  public/
+  capacitor.config.json
+  .github/workflows/android-build.yml
+
+Do not upload a folder containing the project. Upload the CONTENTS of the extracted ZIP.

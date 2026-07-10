@@ -1,0 +1,30 @@
+Your new error is because the GitHub workflow is still running:
+
+  npm ci
+
+That command fails when GitHub cannot find package-lock.json.
+
+FAST FIX:
+1. Open this file in your GitHub repo:
+   .github/workflows/android-build.yml
+
+2. Find this part:
+   - name: Install dependencies
+     run: npm ci
+
+3. Replace it with:
+   - name: Install dependencies
+     run: npm install --include=dev --no-audit --no-fund
+
+4. Commit the file.
+5. Run Actions again.
+
+Also make sure the Set up Node step does NOT contain:
+  cache: npm
+
+The fixed workflow file is available at:
+  /android-build-workflow.yml
+
+If your new error says package.json is missing, your repo root is missing required files.
+Upload package.json to the root of the GitHub repo, or replace the workflow with
+the latest /android-build-workflow.yml, which includes a repair step for package.json.
